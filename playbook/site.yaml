@@ -1,7 +1,7 @@
 - name: Configure instance(s)
   hosts: all
-  become: yes
-#  become_user: admin
+#  become: yes
+#  become_user: cloud_user
   gather_facts: False
 
   vars:
