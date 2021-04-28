@@ -1,0 +1,42 @@
+---
+# tasks file for chia_installation
+
+- name: Upgrade all apt packages
+  apt: upgrade=dist force_apt_get=yes
+  register: upgrade_output
+
+- name: Output of above task
+  debug: msg="{{upgrade_output.stdout}}"
+
+- name: checking if folder exist
+  stat: 
+    path: /opt/chia-blockchain
+  register: folder_chia
+
+
+- name: cloning chia-blockchain repo
+  shell: cd /opt && git clone https://github.com/Chia-Network/chia-blockchain.git
+  when: folder_chia.stat.exists == false
+
+
+- name: checkout to branch
+  shell: cd /opt/chia-blockchain && git checkout 1.1.1 && sh install.sh && . ./activate && chia init
+  when: folder_chia.stat.exists == false
+
+- name: Check if a reboot is needed on Ubuntu/Debian based servers
+  register: reboot_required_file
+  stat: path=/var/run/reboot-required get_md5=no
+ 
+- name: Reboot the box if kernel updated/installed on servers
+  reboot:
+    msg: "Reboot initiated by Ansible for kernel updates"
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 0
+    post_reboot_delay: 180
+    test_command: uptime
+  when: reboot_required_file.stat.exists
+
+
+#- name: plot creation in screen
+#  shell: screen -d -m -S plot1 bash -c ''

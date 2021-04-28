@@ -1,0 +1,13 @@
+- name: Configure instance(s)
+  hosts: all
+  become: yes
+#  become_user: admin
+  gather_facts: False
+
+  vars:
+    unbound_version: 'unbound-1.11.0'
+    chia_version: '1.1.1'
+
+
+  roles:
+    - chia_installation
